@@ -411,6 +411,12 @@ const uniqueElements = (item: any, index: number, all: any[]) => {
 	return index === all.findIndex((i) => JSON.stringify(i.props) === props && i.children == children);
 };
 
+export async function renderEndpoint(mod: any, props: any) {
+	const { body } = await mod.get(props)
+
+	return body
+}
+
 // Renders a page to completion by first calling the factory callback, waiting for its result, and then appending
 // styles and scripts into the head.
 export async function renderPage(result: SSRResult, Component: AstroComponentFactory, props: any, children: any) {

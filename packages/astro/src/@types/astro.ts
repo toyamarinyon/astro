@@ -332,13 +332,15 @@ export interface Renderer {
 	knownEntrypoints?: string[];
 }
 
+export type RouteType = 'page' | 'endpoint';
+
 export interface RouteData {
 	component: string;
 	generate: (data?: any) => string;
 	params: string[];
 	pathname?: string;
 	pattern: RegExp;
-	type: 'page';
+	type: RouteType;
 }
 
 export type RuntimeMode = 'development' | 'production';

@@ -1,12 +1,12 @@
 import type { OutputChunk, OutputAsset, PreRenderedChunk, RollupOutput } from 'rollup';
 import type { Plugin as VitePlugin, UserConfig } from '../vite';
-import type { AstroConfig, Renderer, SSRElement } from '../../@types/astro';
+import type { AstroConfig, Renderer, RouteType, SSRElement } from '../../@types/astro';
 import type { AllPagesData } from './types';
 import type { LogOptions } from '../logger';
 import type { ViteConfigWithSSR } from '../create-vite';
 import type { PageBuildData } from './types';
 import type { BuildInternals } from '../../core/build/internal.js';
-import type { AstroComponentFactory } from '../../runtime/server';
+import { AstroComponentFactory } from '../../runtime/server';
 
 import fs from 'fs';
 import npath from 'path';
@@ -14,12 +14,12 @@ import { fileURLToPath } from 'url';
 import glob from 'fast-glob';
 import vite from '../vite.js';
 import { debug, error } from '../../core/logger.js';
-import { prependForwardSlash, appendForwardSlash } from '../../core/path.js';
+import { prependForwardSlash, appendForwardSlash, folderFromPath, filenameFromPath } from '../../core/path.js';
 import { createBuildInternals } from '../../core/build/internal.js';
-import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
+import { getAstroPageStyleId, rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
 import { getParamsAndProps } from '../ssr/index.js';
 import { createResult } from '../ssr/result.js';
-import { renderPage } from '../../runtime/server/index.js';
+import { renderPage, renderEndpoint } from '../../runtime/server/index.js';
 import { prepareOutDir } from './fs.js';
 import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';
 import { RouteCache } from '../ssr/route-cache.js';
@@ -112,28 +112,31 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	for (const [component, pageData] of Object.entries(allPages)) {
 		const astroModuleURL = new URL('./' + component, astroConfig.projectRoot);
 		const astroModuleId = prependForwardSlash(component);
-		const [renderers, mod] = pageData.preload;
-		const metadata = mod.$$metadata;
 
-		const topLevelImports = new Set([
-			// Any component that gets hydrated
-			...metadata.hydratedComponentPaths(),
-			// Any hydration directive like astro/client/idle.js
-			...metadata.hydrationDirectiveSpecifiers(),
-			// The client path for each renderer
-			...renderers.filter((renderer) => !!renderer.source).map((renderer) => renderer.source!),
-		]);
+		if (pageData.route.type === 'page') {
+			const [renderers, mod] = pageData.preload;
+			const metadata = mod.$$metadata;
 
-		// Add hoisted scripts
-		const hoistedScripts = new Set(metadata.hoistedScriptPaths());
-		if (hoistedScripts.size) {
-			const moduleId = npath.posix.join(astroModuleId, 'hoisted.js');
-			internals.hoistedScriptIdToHoistedMap.set(moduleId, hoistedScripts);
-			topLevelImports.add(moduleId);
-		}
+			const topLevelImports = new Set([
+				// Any component that gets hydrated
+				...metadata.hydratedComponentPaths(),
+				// Any hydration directive like astro/client/idle.js
+				...metadata.hydrationDirectiveSpecifiers(),
+				// The client path for each renderer
+				...renderers.filter((renderer) => !!renderer.source).map((renderer) => renderer.source!),
+			]);
 
-		for (const specifier of topLevelImports) {
-			jsInput.add(specifier);
+			// Add hoisted scripts
+			const hoistedScripts = new Set(metadata.hoistedScriptPaths());
+			if (hoistedScripts.size) {
+				const moduleId = npath.posix.join(astroModuleId, 'hoisted.js');
+				internals.hoistedScriptIdToHoistedMap.set(moduleId, hoistedScripts);
+				topLevelImports.add(moduleId);
+			}
+
+			for (const specifier of topLevelImports) {
+				jsInput.add(specifier);
+			}
 		}
 
 		pageInput.add(astroModuleId);
@@ -348,14 +351,14 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 		);
 		const scripts = hoistedId
 			? new Set<SSRElement>([
-					{
-						props: {
-							type: 'module',
-							src: npath.posix.join(rootpath, hoistedId),
-						},
-						children: '',
+				{
+					props: {
+						type: 'module',
+						src: npath.posix.join(rootpath, hoistedId),
 					},
-			  ])
+					children: '',
+				},
+			])
 			: new Set<SSRElement>();
 		const result = createResult({ astroConfig, logging, origin, params, pathname, renderers, links, scripts });
 
@@ -371,12 +374,15 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 			return fullyRelativePath;
 		};
 
-		let html = await renderPage(result, Component, pageProps, null);
+		let content = pageData.route.type === 'page'
+			? await renderPage(result, Component, pageProps, null)
+			: await renderEndpoint(mod, pageProps);
 
-		const outFolder = getOutFolder(astroConfig, pathname);
-		const outFile = getOutFile(astroConfig, outFolder, pathname);
+		const outFolder = getOutFolder(astroConfig, pathname, pageData.route.type);
+		const outFile = getOutFile(astroConfig, outFolder, pathname, pageData.route.type);
+		
 		await fs.promises.mkdir(outFolder, { recursive: true });
-		await fs.promises.writeFile(outFile, html, 'utf-8');
+		await fs.promises.writeFile(outFile, content, 'utf-8');
 	} catch (err) {
 		error(opts.logging, 'build', `Error rendering:`, err);
 	}
@@ -387,8 +393,12 @@ function getOutRoot(astroConfig: AstroConfig): URL {
 	return new URL('.' + rootPathname, astroConfig.dist);
 }
 
-function getOutFolder(astroConfig: AstroConfig, pathname: string): URL {
+function getOutFolder(astroConfig: AstroConfig, pathname: string, routeType: RouteType): URL {
 	const outRoot = getOutRoot(astroConfig);
+
+	if (routeType === 'endpoint') {
+		return new URL('.' + appendForwardSlash(folderFromPath(pathname)), outRoot);
+	}
 
 	// This is the root folder to write to.
 	switch (astroConfig.buildOptions.pageUrlFormat) {
@@ -399,7 +409,11 @@ function getOutFolder(astroConfig: AstroConfig, pathname: string): URL {
 	}
 }
 
-function getOutFile(astroConfig: AstroConfig, outFolder: URL, pathname: string): URL {
+function getOutFile(astroConfig: AstroConfig, outFolder: URL, pathname: string, routeType: RouteType): URL {
+	if (routeType === 'endpoint') {
+		return new URL('.' + filenameFromPath(pathname), outFolder)
+	}
+
 	switch (astroConfig.buildOptions.pageUrlFormat) {
 		case 'directory':
 			return new URL('./index.html', outFolder);

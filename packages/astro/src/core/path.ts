@@ -38,3 +38,12 @@ export function prependDotSlash(path: string) {
 export function trimSlashes(path: string) {
 	return path.replace(/^\/|\/$/g, '');
 }
+
+export function folderFromPath(path: string) {
+	const end = path.lastIndexOf('/');
+	return path.substring(0, end > 0 ? end : path.length);
+}
+
+export function filenameFromPath(path: string) {
+	return path.substring(Math.max(path.lastIndexOf('/'), 0));
+}
