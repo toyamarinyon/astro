@@ -326,7 +326,9 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 	const { Component, internals, linkIds, hoistedId, pageData, renderers } = gopts;
 
 	// This adds the page name to the array so it can be shown as part of stats.
-	addPageName(pathname, opts);
+	if (pageData.route.type === 'page') {
+	  addPageName(pathname, opts);
+	}
 
 	const [, mod] = pageData.preload;
 
