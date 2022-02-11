@@ -46,8 +46,6 @@ export async function build(opts: ScanBasedBuildOptions) {
 	// Internal maps used to coordinate the HTML and CSS plugins.
 	const internals = createBuildInternals();
 
-	Object.entries(allPages);
-
 	return await vite.build({
 		logLevel: 'error',
 		mode: 'production',
