@@ -411,8 +411,8 @@ const uniqueElements = (item: any, index: number, all: any[]) => {
 	return index === all.findIndex((i) => JSON.stringify(i.props) === props && i.children == children);
 };
 
-export async function renderEndpoint(mod: any, props: any) {
-	const { body } = await mod.get(props)
+export async function renderEndpoint(mod: any, params: any) {
+	const { body } = await mod.get(params)
 
 	return body
 }

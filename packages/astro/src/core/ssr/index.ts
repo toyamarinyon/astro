@@ -186,7 +186,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 
 	// For endpoints, render the content immediately without injecting scripts or styles
 	if (route?.type === 'endpoint') {
-		return renderEndpoint(mod, pageProps);
+		return renderEndpoint(mod, params);
 	}
 
 	// Validate the page component before rendering the page

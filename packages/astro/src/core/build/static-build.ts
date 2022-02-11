@@ -376,7 +376,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 
 		let content = pageData.route.type === 'page'
 			? await renderPage(result, Component, pageProps, null)
-			: await renderEndpoint(mod, pageProps);
+			: await renderEndpoint(mod, params);
 
 		const outFolder = getOutFolder(astroConfig, pathname, pageData.route.type);
 		const outFile = getOutFile(astroConfig, outFolder, pathname, pageData.route.type);
