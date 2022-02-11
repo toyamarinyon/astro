@@ -171,4 +171,45 @@ describe('Development Routing', () => {
 			expect(response.status).to.equal(500);
 		});
 	});
+
+	describe('Endpoint routes', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+		/** @type {import('./test-utils').DevServer} */
+		let devServer;
+
+		before(async () => {
+			fixture = await loadFixture({ projectRoot: './fixtures/with-endpoint-routes/' });
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			devServer && (await devServer.stop());
+		});
+
+		it('200 when loading /home.json', async () => {
+			const response = await fixture.fetch('/home.json');
+			expect(response.status).to.equal(200);
+		});
+
+		it('200 when loading /thing1.json', async () => {
+			const response = await fixture.fetch('/thing1.json');
+			expect(response.status).to.equal(200);
+		});
+
+		it('200 when loading /thing2.json', async () => {
+			const response = await fixture.fetch('/thing2.json');
+			expect(response.status).to.equal(200);
+		});
+
+		it('200 when loading /data/thing3.json', async () => {
+			const response = await fixture.fetch('/data/thing3.json');
+			expect(response.status).to.equal(200);
+		});
+
+		it('200 when loading /data/thing4.json', async () => {
+			const response = await fixture.fetch('/data/thing4.json');
+			expect(response.status).to.equal(200);
+		});
+	})
 });

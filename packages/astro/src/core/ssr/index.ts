@@ -7,7 +7,7 @@ import eol from 'eol';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { renderPage } from '../../runtime/server/index.js';
+import { renderEndpoint, renderPage } from '../../runtime/server/index.js';
 import { codeFrame, resolveDependency } from '../util.js';
 import { getStylesForURL } from './css.js';
 import { injectTags } from './html.js';
@@ -182,6 +182,11 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 			throw new Error(`[getStaticPaths] route pattern matched, but no matching static path found. (${pathname})`);
 		}
 		pageProps = { ...matchedStaticPath.props } || {};
+	}
+
+	// For endpoints, render the content immediately without injecting scripts or styles
+	if (route?.type === 'endpoint') {
+		return renderEndpoint(mod, pageProps);
 	}
 
 	// Validate the page component before rendering the page
