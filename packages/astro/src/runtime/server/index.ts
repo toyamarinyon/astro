@@ -415,14 +415,14 @@ const uniqueElements = (item: any, index: number, all: any[]) => {
 export async function renderEndpoint(mod: EndpointHandler, params: any) {
 	const method = 'get';
 	const handler = mod[method];
-	
+
 	if (!handler || typeof handler !== 'function') {
 		throw new Error(`Endpoint handler not found! Expected an exported function for "${method}"`);
 	}
 
-	const { body } = await mod.get(params)
+	const { body } = await mod.get(params);
 
-	return body
+	return body;
 }
 
 // Renders a page to completion by first calling the factory callback, waiting for its result, and then appending

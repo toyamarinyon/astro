@@ -351,14 +351,14 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 		);
 		const scripts = hoistedId
 			? new Set<SSRElement>([
-				{
-					props: {
-						type: 'module',
-						src: npath.posix.join(rootpath, hoistedId),
+					{
+						props: {
+							type: 'module',
+							src: npath.posix.join(rootpath, hoistedId),
+						},
+						children: '',
 					},
-					children: '',
-				},
-			])
+			  ])
 			: new Set<SSRElement>();
 		const result = createResult({ astroConfig, logging, origin, params, pathname, renderers, links, scripts });
 
@@ -374,13 +374,11 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 			return fullyRelativePath;
 		};
 
-		let content = pageData.route.type === 'page'
-			? await renderPage(result, Component, pageProps, null)
-			: await renderEndpoint(mod as any as EndpointHandler, params);
+		let content = pageData.route.type === 'page' ? await renderPage(result, Component, pageProps, null) : await renderEndpoint(mod as any as EndpointHandler, params);
 
 		const outFolder = getOutFolder(astroConfig, pathname, pageData.route.type);
 		const outFile = getOutFile(astroConfig, outFolder, pathname, pageData.route.type);
-		
+
 		await fs.promises.mkdir(outFolder, { recursive: true });
 		await fs.promises.writeFile(outFile, content, 'utf-8');
 	} catch (err) {
@@ -411,7 +409,7 @@ function getOutFolder(astroConfig: AstroConfig, pathname: string, routeType: Rou
 
 function getOutFile(astroConfig: AstroConfig, outFolder: URL, pathname: string, routeType: RouteType): URL {
 	if (routeType === 'endpoint') {
-		return new URL('.' + filenameFromPath(pathname), outFolder)
+		return new URL('.' + filenameFromPath(pathname), outFolder);
 	}
 
 	switch (astroConfig.buildOptions.pageUrlFormat) {

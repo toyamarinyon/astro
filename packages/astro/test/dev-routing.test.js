@@ -191,15 +191,15 @@ describe('Development Routing', () => {
 			const response = await fixture.fetch('/home.json');
 			expect(response.status).to.equal(200);
 
-			const body = await response.text().then(text => JSON.parse(text));
+			const body = await response.text().then((text) => JSON.parse(text));
 			expect(body.title).to.equal('home');
 		});
 
 		it('200 when loading /thing1.json', async () => {
 			const response = await fixture.fetch('/thing1.json');
 			expect(response.status).to.equal(200);
-			
-			const body = await response.text().then(text => JSON.parse(text));
+
+			const body = await response.text().then((text) => JSON.parse(text));
 			expect(body.slug).to.equal('thing1');
 			expect(body.title).to.equal('[slug]');
 		});
@@ -208,7 +208,7 @@ describe('Development Routing', () => {
 			const response = await fixture.fetch('/thing2.json');
 			expect(response.status).to.equal(200);
 
-			const body = await response.text().then(text => JSON.parse(text));
+			const body = await response.text().then((text) => JSON.parse(text));
 			expect(body.slug).to.equal('thing2');
 			expect(body.title).to.equal('[slug]');
 		});
@@ -217,7 +217,7 @@ describe('Development Routing', () => {
 			const response = await fixture.fetch('/data/thing3.json');
 			expect(response.status).to.equal(200);
 
-			const body = await response.text().then(text => JSON.parse(text));
+			const body = await response.text().then((text) => JSON.parse(text));
 			expect(body.slug).to.equal('thing3');
 			expect(body.title).to.equal('data [slug]');
 		});
@@ -226,9 +226,9 @@ describe('Development Routing', () => {
 			const response = await fixture.fetch('/data/thing4.json');
 			expect(response.status).to.equal(200);
 
-			const body = await response.text().then(text => JSON.parse(text));
+			const body = await response.text().then((text) => JSON.parse(text));
 			expect(body.slug).to.equal('thing4');
 			expect(body.title).to.equal('data [slug]');
 		});
-	})
+	});
 });

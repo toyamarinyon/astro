@@ -43,21 +43,21 @@ describe('Static build', () => {
 	});
 
 	it('Builds out .json files', async () => {
-		const content = await fixture.readFile('/subpath/company.json').then(text => JSON.parse(text));
+		const content = await fixture.readFile('/subpath/company.json').then((text) => JSON.parse(text));
 		expect(content.name).to.equal('Astro Technology Company');
 		expect(content.url).to.equal('https://astro.build/');
-	})
+	});
 
 	it('Builds out dynamic .json files', async () => {
 		const slugs = ['thing1', 'thing2'];
 
-		for(const slug of slugs) {
-			const content = await fixture.readFile(`/subpath/data/${slug}.json`).then(text => JSON.parse(text));
+		for (const slug of slugs) {
+			const content = await fixture.readFile(`/subpath/data/${slug}.json`).then((text) => JSON.parse(text));
 			expect(content.name).to.equal('Astro Technology Company');
 			expect(content.url).to.equal('https://astro.build/');
 			expect(content.slug).to.equal(slug);
 		}
-	})
+	});
 
 	function createFindEvidence(expected) {
 		return async function findEvidence(pathname) {

@@ -25,8 +25,8 @@ export interface ScanBasedBuildOptions {
 // Returns a filter predicate to filter AllPagesData entries by RouteType
 function entryIsType(type: RouteType) {
 	return function withPage([_, pageData]: [string, PageBuildData]) {
-		return pageData.route.type === type
-	}
+		return pageData.route.type === type;
+	};
 }
 
 // Reducer to combine AllPageData entries back into an object keyed by filepath
@@ -37,9 +37,7 @@ function reduceEntries<U>(acc: { [key: string]: U }, [key, value]: [string, U]) 
 
 // Filters an AllPagesData object to only include routes of a specific RouteType
 function routesOfType(type: RouteType, allPages: AllPagesData) {
-	return Object.entries(allPages)
-		.filter(entryIsType(type))
-		.reduce(reduceEntries, {})
+	return Object.entries(allPages).filter(entryIsType(type)).reduce(reduceEntries, {});
 }
 
 export async function build(opts: ScanBasedBuildOptions) {
@@ -48,7 +46,7 @@ export async function build(opts: ScanBasedBuildOptions) {
 	// Internal maps used to coordinate the HTML and CSS plugins.
 	const internals = createBuildInternals();
 
-	Object.entries(allPages)
+	Object.entries(allPages);
 
 	return await vite.build({
 		logLevel: 'error',
