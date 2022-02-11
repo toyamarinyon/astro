@@ -1,6 +1,6 @@
 import type { BuildResult } from 'esbuild';
 import type vite from '../vite';
-import type { AstroConfig, ComponentInstance, Params, Props, Renderer, RouteData, RuntimeMode, SSRElement, SSRError } from '../../@types/astro';
+import type { AstroConfig, ComponentInstance, EndpointHandler, Params, Props, Renderer, RouteData, RuntimeMode, SSRElement, SSRError } from '../../@types/astro';
 import { LogOptions, warn } from '../logger.js';
 
 import eol from 'eol';
@@ -186,7 +186,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 
 	// For endpoints, render the content immediately without injecting scripts or styles
 	if (route?.type === 'endpoint') {
-		return renderEndpoint(mod, params);
+		return renderEndpoint(mod as any as EndpointHandler, params);
 	}
 
 	// Validate the page component before rendering the page

@@ -1,6 +1,6 @@
 import type { OutputChunk, OutputAsset, PreRenderedChunk, RollupOutput } from 'rollup';
 import type { Plugin as VitePlugin, UserConfig } from '../vite';
-import type { AstroConfig, Renderer, RouteType, SSRElement } from '../../@types/astro';
+import type { AstroConfig, EndpointHandler, Renderer, RouteType, SSRElement } from '../../@types/astro';
 import type { AllPagesData } from './types';
 import type { LogOptions } from '../logger';
 import type { ViteConfigWithSSR } from '../create-vite';
@@ -376,7 +376,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 
 		let content = pageData.route.type === 'page'
 			? await renderPage(result, Component, pageProps, null)
-			: await renderEndpoint(mod, params);
+			: await renderEndpoint(mod as any as EndpointHandler, params);
 
 		const outFolder = getOutFolder(astroConfig, pathname, pageData.route.type);
 		const outFile = getOutFile(astroConfig, outFolder, pathname, pageData.route.type);

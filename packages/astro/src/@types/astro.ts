@@ -298,6 +298,16 @@ export interface RenderPageOptions {
 	css?: string[];
 }
 
+type Body = string;
+
+export interface EndpointOutput<Output extends Body = Body> {
+	body: Output;
+}
+
+export interface EndpointHandler {
+	[method: string]: (params: any) => EndpointOutput;
+}
+
 /**
  * Astro Renderer
  * Docs: https://docs.astro.build/reference/renderer-reference/
