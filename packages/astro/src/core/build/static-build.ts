@@ -396,29 +396,31 @@ function getOutRoot(astroConfig: AstroConfig): URL {
 function getOutFolder(astroConfig: AstroConfig, pathname: string, routeType: RouteType): URL {
 	const outRoot = getOutRoot(astroConfig);
 
-	if (routeType === 'endpoint') {
-		return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
-	}
-
 	// This is the root folder to write to.
-	switch (astroConfig.buildOptions.pageUrlFormat) {
-		case 'directory':
-			return new URL('.' + appendForwardSlash(pathname), outRoot);
-		case 'file':
+	switch (routeType) {
+		case 'endpoint':
 			return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
+		case 'page':
+			switch (astroConfig.buildOptions.pageUrlFormat) {
+				case 'directory':
+					return new URL('.' + appendForwardSlash(pathname), outRoot);
+				case 'file':
+					return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
+			}
 	}
 }
 
 function getOutFile(astroConfig: AstroConfig, outFolder: URL, pathname: string, routeType: RouteType): URL {
-	if (routeType === 'endpoint') {
-		return new URL(npath.basename(pathname), outFolder);
-	}
-
-	switch (astroConfig.buildOptions.pageUrlFormat) {
-		case 'directory':
-			return new URL('./index.html', outFolder);
-		case 'file':
-			return new URL('./' + npath.basename(pathname) + '.html', outFolder);
+	switch(routeType) {
+		case 'endpoint':
+			return new URL(npath.basename(pathname), outFolder);
+		case 'page':
+			switch (astroConfig.buildOptions.pageUrlFormat) {
+				case 'directory':
+					return new URL('./index.html', outFolder);
+				case 'file':
+					return new URL('./' + npath.basename(pathname) + '.html', outFolder);
+			}
 	}
 }
 
