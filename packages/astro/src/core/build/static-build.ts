@@ -14,7 +14,7 @@ import { fileURLToPath } from 'url';
 import glob from 'fast-glob';
 import vite from '../vite.js';
 import { debug, error } from '../../core/logger.js';
-import { prependForwardSlash, appendForwardSlash, folderFromPath, filenameFromPath } from '../../core/path.js';
+import { prependForwardSlash, appendForwardSlash } from '../../core/path.js';
 import { createBuildInternals } from '../../core/build/internal.js';
 import { getAstroPageStyleId, rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
 import { getParamsAndProps } from '../ssr/index.js';
@@ -397,7 +397,7 @@ function getOutFolder(astroConfig: AstroConfig, pathname: string, routeType: Rou
 	const outRoot = getOutRoot(astroConfig);
 
 	if (routeType === 'endpoint') {
-		return new URL('.' + appendForwardSlash(folderFromPath(pathname)), outRoot);
+		return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
 	}
 
 	// This is the root folder to write to.
@@ -411,7 +411,7 @@ function getOutFolder(astroConfig: AstroConfig, pathname: string, routeType: Rou
 
 function getOutFile(astroConfig: AstroConfig, outFolder: URL, pathname: string, routeType: RouteType): URL {
 	if (routeType === 'endpoint') {
-		return new URL('.' + filenameFromPath(pathname), outFolder);
+		return new URL(npath.basename(pathname), outFolder);
 	}
 
 	switch (astroConfig.buildOptions.pageUrlFormat) {
