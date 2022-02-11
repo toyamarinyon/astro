@@ -41,7 +41,7 @@ export function trimSlashes(path: string) {
 
 export function folderFromPath(path: string) {
 	const end = path.lastIndexOf('/');
-	return path.substring(0, end > 0 ? end : path.length);
+	return path.substring(0, end >= 0 ? end : path.length);
 }
 
 export function filenameFromPath(path: string) {
